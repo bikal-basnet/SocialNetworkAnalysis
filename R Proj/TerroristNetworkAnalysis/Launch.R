@@ -1,0 +1,5 @@
+library(shiny)
+getwd()
+setwd('C:/Users/Lenovo B4400/Google Drive/0 Projects/Market Basket Analysis/')
+runApp("R_shiny")
+runApp("SkygeekUpsellApp")

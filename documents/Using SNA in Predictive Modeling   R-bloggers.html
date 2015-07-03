@@ -1,0 +1,581 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0059)http://www.r-bloggers.com/using-sna-in-predictive-modeling/ -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head profile="http://gmpg.org/xfn/11"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Using SNA in Predictive Modeling | R-bloggers</title>
+
+<script src="./Using SNA in Predictive Modeling   R-bloggers_files/cb=gapi.loaded_0" async=""></script><script type="text/javascript" async="" src="./Using SNA in Predictive Modeling   R-bloggers_files/ga.js"></script><script async="" src="./Using SNA in Predictive Modeling   R-bloggers_files/cloudflare.min.js"></script><script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"5a6bf64a51fe199ed555c9c463774f07",petok:"32afb9df80042e9208a43c3d086053b46d24b58f-1422413861-1800",zone:"r-bloggers.com",rocket:"0",apps:{}}];CloudFlare.push({"apps":{"ape":"5e98a98a9b9bf03020baa94db48f406b"}});!function(a,b){a=document.createElement("script"),b=document.getElementsByTagName("script")[0],a.async=!0,a.src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=919620257c/cloudflare.min.js",b.parentNode.insertBefore(a,b)}()}}catch(e){};
+//]]>
+</script>
+<link rel="stylesheet" href="./Using SNA in Predictive Modeling   R-bloggers_files/style.css" type="text/css" media="screen">
+
+<style type="text/css">
+
+body { width: 1024px; }
+
+#mainwrapper { width: 1004px; }
+
+#sidebar { width: 180px; }
+
+#sidebar .side-widget { width: 160px; }
+
+
+#secondsidebar { width: 300px; }
+
+#secondsidebar .side-widget { width: 300px; }
+
+
+#leftcontent, #twocol, #threecol, #threecol2, .commentlist { width: 456px; }
+
+#leftcontent img, .wp-caption { max-width: 456px; }
+
+#leftcontent .wp-caption img, #leftcontent .gallery-thumb img { max-width: 444px; }
+
+<!-- fix for IE & Safari -->
+
+.threepost embed { width: 132.24px !important; }
+
+.twopost embed { width: 209.76px !important; }
+
+<!-- end fix for Safari -->
+
+</style>
+
+	<link rel="pingback" href="http://www.r-bloggers.com/xmlrpc.php">
+<!--[if IE]>
+<link rel="stylesheet" type="text/css" href="http://www.r-bloggers.com/wp-content/themes/magazine-basic/iestyles.css" />
+<![endif]-->
+
+<!-- All in One SEO Pack 2.2.5 by Michael Torbert of Semper Fi Web Design[290,344] -->
+<meta name="description" itemprop="description" content="In a previous post, I described the basics of social network analysis. I plan to extend that example here with an application in predictive analytics. Let&#39;s">
+
+<meta name="keywords" itemprop="keywords" content="r,r code,social network analysis">
+
+<link rel="canonical" href="./Using SNA in Predictive Modeling   R-bloggers_files/Using SNA in Predictive Modeling   R-bloggers.html">
+<!-- /all in one seo pack -->
+<link rel="alternate" type="application/rss+xml" title="R-bloggers » Feed" href="http://www.r-bloggers.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="R-bloggers » Comments Feed" href="http://www.r-bloggers.com/comments/feed/">
+<link rel="stylesheet" id="wpt-twitter-feed-css" href="./Using SNA in Predictive Modeling   R-bloggers_files/twitter-feed.css" type="text/css" media="all">
+<link rel="stylesheet" id="jetpack-top-posts-widget-css" href="./Using SNA in Predictive Modeling   R-bloggers_files/style(1).css" type="text/css" media="all">
+<link rel="stylesheet" id="jetpack_css-css" href="./Using SNA in Predictive Modeling   R-bloggers_files/jetpack.css" type="text/css" media="all">
+<link rel="stylesheet" id="codebox-css" href="./Using SNA in Predictive Modeling   R-bloggers_files/codebox.css" type="text/css" media="screen">
+<!-- This site uses the Yoast Google Analytics plugin v5.2.8 - Universal disabled - https://yoast.com/wordpress/plugins/google-analytics/ -->
+<script type="text/javascript">
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-419807-53']);
+	_gaq.push(['_gat._forceSSL']);
+	_gaq.push(['_trackPageview']);
+
+	(function () {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+
+</script><style type="text/css">.cf-hidden { display: none; } .cf-invisible { visibility: hidden; }</style>
+<!-- / Yoast Google Analytics -->
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/jquery.min.js"></script>
+<script type="text/javascript">try{jQuery.noConflict();}catch(e){};</script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/jquery-migrate.min.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/related-posts.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/codebox.js"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.r-bloggers.com/xmlrpc.php?rsd">
+<link rel="prev" title="R at the Consumer Financial Protection Bureau" href="http://www.r-bloggers.com/r-at-the-consumer-financial-protection-bureau/">
+<link rel="next" title="Speed up your R code using a just-in-time (JIT) compiler" href="http://www.r-bloggers.com/speed-up-your-r-code-using-a-just-in-time-jit-compiler/">
+<link rel="shortlink" href="http://wp.me/pMm6L-fY9">
+<!-- This site is powered by Tweet, Like, Plusone and Share Plugin - http://techxt.com/tweet-like-google-1-and-share-plugin-wordpress/ -->
+		<meta property="og:type" content="article">
+		<meta property="og:title" content="Using SNA in Predictive Modeling">
+		<meta property="og:url" content="http://www.r-bloggers.com/using-sna-in-predictive-modeling/">
+		<meta property="og:site_name" content="R-bloggers">
+		<meta property="og:description" content="In a previous post, I described the basics of social network analysis. I plan to extend that example here with an application in predictive analytics. Let&#39;s suppose we have the following network (visualized in R)Suppose we have used the igraph package ...">
+		<!--[if lt IE 9]>
+	  <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+					<meta property="og:image" content="https://blogger.googleusercontent.com/tracker/2474498300859593807-5843911423232265101?l=econometricsense.blogspot.com">
+			<style type="text/css">div.socialicons{float:left;display:block;margin-right: 10px;line-height: 1;}div.socialiconsv{line-height: 1;}div.socialicons p{margin-bottom: 0px !important;margin-top: 0px !important;padding-bottom: 0px !important;padding-top: 0px !important;}div.social4iv{background: none repeat scroll 0 0 #FFFFFF;border: 1px solid #aaa;border-radius: 3px 3px 3px 3px;box-shadow: 3px 3px 3px #DDDDDD;padding: 3px;position: fixed;text-align: center;top: 55px;width: 68px;display:none;}div.socialiconsv{padding-bottom: 5px;}</style>
+<style type="text/css">img#wpstats{display:none}</style><link rel="stylesheet" type="text/css" href="./Using SNA in Predictive Modeling   R-bloggers_files/shCore.css"><link rel="stylesheet" type="text/css" href="./Using SNA in Predictive Modeling   R-bloggers_files/shThemeDefault.css"><style type="text/css" id="syntaxhighlighteranchor"></style>
+<script src="./Using SNA in Predictive Modeling   R-bloggers_files/secureAnonymousFramework"></script><style type="text/css">.fb_hidden{position:absolute;top:-10000px;z-index:10001}.fb_invisible{display:none}.fb_reset{background:none;border:0;border-spacing:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}.fb_reset>div{overflow:hidden}.fb_link img{border:none}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}.fb_reset .fb_dialog_legacy{overflow:visible}.fb_dialog_advanced{padding:10px;-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px}.fb_dialog_content{background:#fff;color:#333}.fb_dialog_close_icon{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;_background-image:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif);cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px}.fb_dialog_mobile .fb_dialog_close_icon{top:5px;left:5px;right:auto}.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}.fb_dialog_close_icon:hover{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent;_background-image:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_close_icon:active{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent;_background-image:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_loader{background-color:#f6f7f8;border:1px solid #606060;font-size:24px;padding:20px}.fb_dialog_top_left,.fb_dialog_top_right,.fb_dialog_bottom_left,.fb_dialog_bottom_right{height:10px;width:10px;overflow:hidden;position:absolute}.fb_dialog_top_left{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 0;left:-10px;top:-10px}.fb_dialog_top_right{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -10px;right:-10px;top:-10px}.fb_dialog_bottom_left{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -20px;bottom:-10px;left:-10px}.fb_dialog_bottom_right{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -30px;right:-10px;bottom:-10px}.fb_dialog_vert_left,.fb_dialog_vert_right,.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{position:absolute;background:#525252;filter:alpha(opacity=70);opacity:.7}.fb_dialog_vert_left,.fb_dialog_vert_right{width:10px;height:100%}.fb_dialog_vert_left{margin-left:-10px}.fb_dialog_vert_right{right:0;margin-right:-10px}.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{width:100%;height:10px}.fb_dialog_horiz_top{margin-top:-10px}.fb_dialog_horiz_bottom{bottom:0;margin-bottom:-10px}.fb_dialog_iframe{line-height:0}.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #3a5795;color:#fff;font-size:14px;font-weight:bold;margin:0}.fb_dialog_content .dialog_title>span{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/yd/r/Cou7n-nqK52.gif) no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}body.fb_hidden{-webkit-transform:none;height:100%;margin:0;overflow:visible;position:absolute;top:-10000px;left:0;width:100%}.fb_dialog.fb_dialog_mobile.loading{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/ya/r/3rhSv5V8j3o.gif) white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}.fb_dialog.fb_dialog_mobile.loading.centered{max-height:590px;min-height:590px;max-width:500px;min-width:500px}#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .45);position:absolute;left:0;top:0;width:100%;min-height:100%;z-index:10000}#fb-root #fb_dialog_ipad_overlay.hidden{display:none}.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}.fb_dialog_content .dialog_header{-webkit-box-shadow:white 0 1px 1px -1px inset;background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#738ABA), to(#2C4987));border-bottom:1px solid;border-color:#1d4088;color:#fff;font:14px Helvetica, sans-serif;font-weight:bold;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}.fb_dialog_content .dialog_header table{-webkit-font-smoothing:subpixel-antialiased;height:43px;width:100%}.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px}.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px}.fb_dialog_content .touchable_button{background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#4966A6), color-stop(.5, #355492), to(#2A4887));border:1px solid #2f477a;-webkit-background-clip:padding-box;-webkit-border-radius:3px;-webkit-box-shadow:rgba(0, 0, 0, .117188) 0 1px 1px inset, rgba(255, 255, 255, .167969) 0 1px 0;display:inline-block;margin-top:3px;max-width:85px;line-height:18px;padding:4px 12px;position:relative}.fb_dialog_content .dialog_header .touchable_button input{border:none;background:none;color:#fff;font:12px Helvetica, sans-serif;font-weight:bold;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}.fb_dialog_content .dialog_content{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #555;border-bottom:0;border-top:0;height:150px}.fb_dialog_content .dialog_footer{background:#f6f7f8;border:1px solid #555;border-top-color:#ccc;height:40px}#fb_dialog_loader_close{float:left}.fb_dialog.fb_dialog_mobile .fb_dialog_close_button{text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}
+.fb_iframe_widget{display:inline-block;position:relative}.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}.fb_iframe_widget iframe{position:absolute}.fb_iframe_widget_fluid_desktop,.fb_iframe_widget_fluid_desktop span,.fb_iframe_widget_fluid_desktop iframe{max-width:100%}.fb_iframe_widget_fluid_desktop iframe{min-width:220px;position:relative}.fb_iframe_widget_lift{z-index:1}.fb_hide_iframes iframe{position:relative;left:-10000px}.fb_iframe_widget_loader{position:relative;display:inline-block}.fb_iframe_widget_fluid{display:inline}.fb_iframe_widget_fluid span{width:100%}.fb_iframe_widget_loader iframe{min-height:32px;z-index:2;zoom:1}.fb_iframe_widget_loader .FB_Loader{background:url(http://m-static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat;height:32px;width:32px;margin-left:-16px;position:absolute;left:50%;z-index:4}</style></head>
+
+<body class="single single-post postid-61389 single-format-standard" data-twttr-rendered="true">
+<!-- begin header -->
+<div id="header">
+		    	    	<a href="http://www.r-bloggers.com/" class="headerimage"><img src="./Using SNA in Predictive Modeling   R-bloggers_files/R_02.png" alt="R-bloggers" class="aligncenter"></a>
+        <div id="description" class="aligncenter">
+        R news and tutorials contributed by (563) R bloggers    </div>     
+    <div class="main-navigation"><ul id="menu-top-nav" class="sf-menu sf-js-enabled sf-shadow"><li id="menu-item-48314" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-48314"><a href="http://www.r-bloggers.com/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget-int&#39;, &#39;http://www.r-bloggers.com&#39;, &#39;Home&#39;]);">Home</a></li>
+<li id="menu-item-48312" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-48312"><a href="http://www.r-bloggers.com/about/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget-int&#39;, &#39;http://www.r-bloggers.com/about/&#39;, &#39;About&#39;]);">About</a></li>
+<li id="menu-item-50111" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-50111"><a href="http://feeds.feedburner.com/RBloggers" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://feeds.feedburner.com/RBloggers&#39;, &#39;RSS&#39;]);">RSS</a></li>
+<li id="menu-item-48313" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-48313"><a href="http://www.r-bloggers.com/add-your-blog/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget-int&#39;, &#39;http://www.r-bloggers.com/add-your-blog/&#39;, &#39;add your blog!&#39;]);">add your blog!</a></li>
+<li id="menu-item-75513" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-75513"><a href="http://www.r-users.com/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://www.r-users.com/&#39;, &#39;R jobs&#39;]);" class="sf-with-ul">R jobs<span class="sf-sub-indicator">�</span><span class="sf-sub-indicator">�</span><span class="sf-sub-indicator">�</span></a>
+<ul class="sub-menu" style="display: none; float: none; width: 12em; visibility: hidden;">
+	<li id="menu-item-76945" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-76945" style="float: left; width: 100%; white-space: normal;"><a href="http://www.r-users.com/submit-job/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://www.r-users.com/submit-job/&#39;, &#39;Submit a new job (it’s free)&#39;]);" style="float: none; width: auto;">Submit a new job (it’s free)</a></li>
+	<li id="menu-item-76946" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-76946" style="float: left; width: 100%; white-space: normal;"><a href="http://www.r-users.com/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://www.r-users.com/&#39;, &#39;Browse latest jobs (also free)&#39;]);" style="float: none; width: auto;">Browse latest jobs (also free)</a></li>
+</ul>
+</li>
+<li id="menu-item-48311" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-48311"><a href="http://www.r-bloggers.com/contact-us/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget-int&#39;, &#39;http://www.r-bloggers.com/contact-us/&#39;, &#39;Contact us&#39;]);">Contact us</a></li>
+</ul></div>
+</div>
+<!-- end header -->
+
+
+<div id="mainwrapper">
+<!-- begin sidebar -->
+    <div id="sidebar">
+		<div class="side-widget"><h2>Welcome!</h2>			<div class="textwidget">Here you will find daily <strong>news and tutorials about R</strong>, contributed by over 555 bloggers. 
+<br>
+There are many ways to <strong>follow us - </strong>
+<br>
+<a href="http://feedburner.google.com/fb/a/mailverify?uri=RBloggers" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://feedburner.google.com/fb/a/mailverify?uri=RBloggers&#39;, &#39;By e-mail:&#39;]);">By e-mail:</a>
+
+<form style="border:1px solid #ccc;padding:3px;text-align:center;" action="http://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#39;http://feedburner.google.com/fb/a/mailverify?uri=RBloggers&#39;, &#39;popupwindow&#39;, &#39;scrollbars=yes,width=550,height=520&#39;);return true">
+<input type="text" style="width:110px" onclick="if (this.value == &#39;Your e-mail here&#39;) this.value = &#39;&#39;;" value="Your e-mail here" name="email">
+<input type="hidden" value="RBloggers" name="uri"><input type="hidden" name="loc" value="en_US"><input type="submit" value="Subscribe">
+<a href="http://feeds.feedburner.com/RBloggers" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://feeds.feedburner.com/RBloggers&#39;, &#39;&#39;]);"><img src="./Using SNA in Predictive Modeling   R-bloggers_files/RBloggers" height="26" width="88" style="border:0" alt=""></a>
+</form>
+
+<a href="https://twitter.com/rbloggers" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;https://twitter.com/rbloggers&#39;, &#39;On Twitter:&#39;]);">On Twitter:</a>
+
+<iframe allowtransparency="true" frameborder="0" scrolling="no" src="./Using SNA in Predictive Modeling   R-bloggers_files/follow_button.html" style="width:164px; height:30px;"></iframe>
+
+
+<a href="https://www.facebook.com/rbloggers" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;https://www.facebook.com/rbloggers&#39;, &#39;On Facebook:&#39;]);">On Facebook:</a>
+<iframe src="./Using SNA in Predictive Modeling   R-bloggers_files/likebox.html" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:160px; height:298px;" allowtransparency="true"></iframe>
+
+
+<br>
+<strong>If you are an R blogger yourself</strong> you are invited to <a href="http://www.r-bloggers.com/add-your-blog/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget-int&#39;, &#39;http://www.r-bloggers.com/add-your-blog/&#39;, &#39;add your own R content feed to this site&#39;]);">add your own R content feed to this site</a> (<strong>Non-English</strong> R bloggers should add themselves- <a href="http://www.r-bloggers.com/lang/add-your-blog" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget-int&#39;, &#39;http://www.r-bloggers.com/lang/add-your-blog&#39;, &#39;here&#39;]);">here</a>)</div>
+		</div><div class="side-widget"><h2><a class="rsswidget" href="http://feeds.feedburner.com/R-usersLetsWorkTogetherJobs" title="Syndicate this content"><img style="border:0" width="14" height="14" src="./Using SNA in Predictive Modeling   R-bloggers_files/rss.png" alt="RSS"></a> <a class="rsswidget" href="http://www.r-users.com/" title="A job board for people and companies looking to hire R users">Jobs for R-users</a></h2><ul><li><a class="rsswidget" href="http://feedproxy.google.com/~r/R-usersLetsWorkTogetherJobs/~3/Zdlhqriq8m4/" title="Hi R-users, We are the developers of a simple online user interface for complex data analysis and visualization. All the users need to do is just to upload their data from their hard disk, then everything else is only a few mouse clicks. They can draw histograms, line charts, point charts, density charts, boxplots, google […] The post Improve UI for our gene">Improve UI for our general online data analysis and visualization tools (R)</a></li><li><a class="rsswidget" href="http://feedproxy.google.com/~r/R-usersLetsWorkTogetherJobs/~3/zCQUN70-iEE/" title="I am looking to establish a partnership to code an algorithm which will trade based on twitter etc. I am a very experienced trader looking to expand trading into intraday US equities using trading algorithm which are based on social media. The code should be able to do both backtesting and trading. Get the twitter data into […] The post Looking for a partner">Looking for a partner to code an algorithm which will trade base on twitter and other social data feed</a></li><li><a class="rsswidget" href="http://feedproxy.google.com/~r/R-usersLetsWorkTogetherJobs/~3/0YkB8EFZttc/" title="Implement an r-script that creates a mysql db instance and stores the instance object in an in-memory database (e.g redis) for future reusability. The r-script takes base 64 unique hash, dbname, dbuser, dbpass, dbhost as command arguments. Implement an r-script that updates redis with a mysql connection instance taking an old hash and new hash […] The post R">R Integration with D3 charts</a></li><li><a class="rsswidget" href="http://feedproxy.google.com/~r/R-usersLetsWorkTogetherJobs/~3/NVmS3tcaLXY/" title="uSwitch is an impartial comparison and switching service. We help compare prices on gas &amp; electricity, home phone, broadband, digital television, mobile phones and personal finance products including mortgages, credit cards, current accounts and insurance. Our aim is to help customers take advantage of the best prices and services on offer from suppliers">Data Analyst at uSwitch</a></li><li><a class="rsswidget" href="http://feedproxy.google.com/~r/R-usersLetsWorkTogetherJobs/~3/Leblo2zTbQI/" title="Position Description Pew Research Center is looking for a Director to lead the creation of the Pew Research Center Labs. The Labs are envisioned as an integral, and integrated, part of the Center that will provide researchers the intellectual and analytical expertise and support needed to experiment with new data sets and seek out new […] The post Director,">Director, Pew Research Center Labs</a></li></ul></div><div class="side-widget"><form method="get" id="searchform" action="http://www.r-bloggers.com/">
+<div>
+<input type="text" class="search_input" value="Search &amp; Hit Enter" name="s" id="s" onfocus="if (this.value == &#39;Search &amp; Hit Enter&#39;) {this.value = &#39;&#39;;}" onblur="if (this.value == &#39;&#39;) {this.value = &#39;Search &amp; Hit Enter&#39;;}">
+<input type="hidden" id="searchsubmit">
+</div>
+</form></div><div class="side-widget"><h2>Popular Searches</h2>
+<ul>
+<li><a href="http://www.r-bloggers.com/search/heatmap">heatmap</a></li>
+<li><a href="http://www.r-bloggers.com/search/web%20scraping">web scraping</a></li>
+<li><a href="http://www.r-bloggers.com/search/hadoop">hadoop</a></li>
+<li><a href="http://www.r-bloggers.com/search/twitter">twitter</a></li>
+<li><a href="http://www.r-bloggers.com/search/PCA">PCA</a></li>
+<li><a href="http://www.r-bloggers.com/search/shiny">shiny</a></li>
+<li><a href="http://www.r-bloggers.com/search/finance">finance</a></li>
+<li><a href="http://www.r-bloggers.com/search/boxplot">boxplot</a></li>
+<li><a href="http://www.r-bloggers.com/search/maps">maps</a></li>
+<li><a href="http://www.r-bloggers.com/search/ggplot">ggplot</a></li>
+<li><a href="http://www.r-bloggers.com/search/ggplot2">ggplot2</a></li>
+<li><a href="http://www.r-bloggers.com/search/animation">animation</a></li>
+<li><a href="http://www.r-bloggers.com/search/LaTeX">LaTeX</a></li>
+<li><a href="http://www.r-bloggers.com/search/trading">trading</a></li>
+<li><a href="http://www.r-bloggers.com/search/time%20series">time series</a></li>
+<li><a href="http://www.r-bloggers.com/search/excel">excel</a></li>
+<li><a href="http://www.r-bloggers.com/search/quantmod">quantmod</a></li>
+<li><a href="http://www.r-bloggers.com/search/how%20to%20import%20image%20file%20to%20R">how to import image file to R</a></li>
+<li><a href="http://www.r-bloggers.com/search/knitr">knitr</a></li>
+<li><a href="http://www.r-bloggers.com/search/googlevis">googlevis</a></li>
+<li><a href="http://www.r-bloggers.com/search/tutorial">tutorial</a></li>
+<li><a href="http://www.r-bloggers.com/search/rstudio">rstudio</a></li>
+<li><a href="http://www.r-bloggers.com/search/market%20research">market research</a></li>
+<li><a href="http://www.r-bloggers.com/search/eclipse">eclipse</a></li>
+<li><a href="http://www.r-bloggers.com/search/rattle">rattle</a></li>
+<li><a href="http://www.r-bloggers.com/search/gis">gis</a></li>
+<li><a href="http://www.r-bloggers.com/search/rcmdr">rcmdr</a></li>
+<li><a href="http://www.r-bloggers.com/search/ecdf">ecdf</a></li>
+<li><a href="http://www.r-bloggers.com/search/coplot">coplot</a></li>
+<li><a href="http://www.r-bloggers.com/search/sweave">sweave</a></li>
+</ul>
+
+</div>		<div class="side-widget">		<h2>Recent Posts</h2>		<ul>
+					<li>
+				<a href="http://www.r-bloggers.com/microsoft-to-acquire-revolution-analytics-now-this-gets-interesting/">Microsoft to acquire Revolution Analytics: Now this gets interesting…</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/rss-feeds-for-statistics-and-related-journals/">RSS feeds for statistics and related journals</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/r-open-source-and-commercial-support/">R Open Source and Commercial Support</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/assertive-r-programming-in-dplyrmagrittr-pipelines/">Assertive R programming in dplyr/magrittr pipelines</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/revolution-analytics-joins-microsoft/">Revolution Analytics joins Microsoft</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/shiny-0-11-themes-and-dashboard/">Shiny 0.11, themes, and dashboard</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/r-package-to-download-fitbit-data/">R Package to Download Fitbit Data</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/a-first-look-at-spark/">A first look at Spark</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/data-wrangling-webinar-and-ifar-chapter-update/">Data Wrangling Webinar and IFAR Chapter Update</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/sequential-monte-carlo-2015-workshop/">Sequential Monte Carlo 2015 workshop</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/four-famous-laws-how-you-can-visualize-them/">Four Famous Laws &amp; How You Can Visualize Them</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/easy-error-propagation-in-r/">Easy error propagation in R</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/how-to-reliably-access-network-resources-in-r/">How to reliably access network resources in R</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/practical-introduction-to-shiny-workshop-write-up/">Practical introduction to Shiny – workshop write-up</a>
+						</li>
+					<li>
+				<a href="http://www.r-bloggers.com/a-beautiful-story-about-nyc-weather/">A beautiful story about NYC weather</a>
+						</li>
+				</ul>
+		</div><div class="side-widget"><h2>Other sites</h2>
+	<ul class="xoxo blogroll">
+<li><a href="http://statil.org/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://statil.org/&#39;, &#39;Statistics of Israel&#39;]);" rel="nofollow" title="25,000 data sets of time series from the Israeli Central Bureau of Statistics ">Statistics of Israel</a></li>
+<li><a href="http://www.proc-x.com/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://www.proc-x.com/&#39;, &#39;SAS blogs&#39;]);" rel="nofollow" title="SAS news gathered from bloggers">SAS blogs</a></li>
+<li><a href="http://www.r-users.com/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget&#39;, &#39;http://www.r-users.com/&#39;, &#39;Jobs for R-users&#39;]);" rel="nofollow">Jobs for R-users</a></li>
+
+	</ul>
+</div>
+    </div>
+<!-- end sidebar -->	<div id="leftcontent">
+	
+		
+
+	<div id="post-61389" class="post-61389 post type-post status-publish format-standard hentry category-r-bloggers tag-r tag-r-code tag-social-network-analysis">
+					
+				
+                <h1>Using SNA in Predictive Modeling</h1>
+                <div class="meta"><div class="date">April 10, 2012</div>By <a href="http://www.r-bloggers.com/author/matt-bogard/" title="Posts by Matt Bogard" rel="author">Matt Bogard</a></div><div class="entry"><p class="syndicated-attribution"></p><div class="social4i" style="height:29px;"><div class="social4in" style="height:29px;float: left;"><div class="socialicons s4fblike" style="float:left;margin-right: 10px;"><div class="fb-like fb_iframe_widget" data-href="http://www.r-bloggers.com/using-sna-in-predictive-modeling/" data-send="true" data-layout="button_count" data-width="100" data-height="21" data-show-faces="false" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=&amp;height=21&amp;href=http%3A%2F%2Fwww.r-bloggers.com%2Fusing-sna-in-predictive-modeling%2F&amp;layout=button_count&amp;locale=en_US&amp;sdk=joey&amp;send=true&amp;show_faces=false&amp;width=100"><span style="vertical-align: bottom; width: 120px; height: 20px;"><iframe name="f3dfec8f6c" width="100px" height="21px" frameborder="0" allowtransparency="true" scrolling="no" title="fb:like Facebook Social Plugin" src="./Using SNA in Predictive Modeling   R-bloggers_files/like(2).html" style="border: none; visibility: visible; width: 120px; height: 20px;" class=""></iframe></span></div></div><div class="socialicons s4twitter" style="float:left;margin-right: 10px;"><iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" src="./Using SNA in Predictive Modeling   R-bloggers_files/tweet_button.b68aed79dd9ad79554bcd8c9141c94c8.en.html" class="twitter-share-button twitter-tweet-button twitter-share-button twitter-count-horizontal" title="Twitter Tweet Button" data-twttr-rendered="true" style="width: 107px; height: 20px;"></iframe></div></div><div style="clear:both"></div></div>
+
+<div style="border: 1px solid; background: none repeat scroll 0 0 #EDEDED; margin: 1px; font-size: 12px;">
+(This article was first published on  <strong><a href="http://econometricsense.blogspot.com/2012/04/using-sna-in-predictive-modeling.html"> Econometric Sense</a></strong>, and kindly contributed to <a href="http://www.r-bloggers.com/" rel="nofollow">R-bloggers)</a>      
+</div><p></p>
+In a <a href="http://www.econometricsense.blogspot.com/2012/04/introduction-to-social-network-analysis.html" ref="nofollow" target="_blank">previous post</a>, I described the basics of social network analysis. I plan to extend that example here with an application in predictive analytics. Let's suppose we have the following network (visualized in R)<br><img alt="" src="data:image/png;base64,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"><br>Suppose we have used the igraph package in R to derive measures of centrality, and we combined that information with other information gathered from our data base, for example income and loan default data. We can then incorporate the centrality measures into a model that predicts default.<br><br>&nbsp;Notwithstanding the<a href="http://www.econometricsense.blogspot.com/2011/08/linear-regression-and-analysis-of.html" ref="nofollow" target="_blank"> issues related to linear regression with binary dependent variables</a>, the extremely small sample size, and the fact that this data is totally made up, for illustrative purposes, lets say we have the following data set:<br><br><img alt="" src="data:image/png;base64,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"><br><br>A basic linear regression gives the following:<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Estimate Std. Error t value Pr(&gt;|t|)&nbsp;&nbsp;&nbsp; <br>(Intercept)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.775e+00&nbsp; 1.424e-01&nbsp; 12.464 4.93e-06 ***<br>creditrisk$eig&nbsp;&nbsp;&nbsp; -1.172e+00&nbsp; 2.642e-01&nbsp; -4.438&nbsp; 0.00302 ** <br>creditrisk$income -9.807e-06&nbsp; 4.362e-06&nbsp; -2.249&nbsp; 0.05932 .&nbsp; <br>---<br>Signif. codes:&nbsp; 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 <br><br>Residual standard error: 0.1362 on 7 degrees of freedom<br>Multiple R-squared: 0.9188,&nbsp;&nbsp;&nbsp;&nbsp; Adjusted R-squared: 0.8956 <br>F-statistic:&nbsp; 39.6 on 2 and 7 DF,&nbsp; p-value: 0.0001526 <br><br>Although the data is made up, we can see that eigenvector centrality is a significant predictor in the regression.&nbsp; While logistic regression or decision trees may be more appropriate, I could not obtain results for illustrative purposes.<br><br>&nbsp;For a couple of actual applications with real data see:<br><br><b>Analysis of Variance Application:&nbsp;</b><br><br>Investigating Student Communities with Network Analysis of Interactions in a Physics Learning Center. Brewe, Eric; Kramer, Laird; O'Brien, George<br>2009 PHYSICS EDUCATION RESEARCH CONFERENCE. AIP Conference Proceedings, Volume 1179, pp. 105-108 (2009). <br><br><b>Path Analysis:</b><br><br>Ties That Bind: A Social Network Approach to Understanding Student Integration and Persistence<br>Scott L. Thomas. The Journal of Higher Education , Vol. 71, No. 5 (Sep. - Oct., 2000), pp. 591-615&nbsp; <br><br><b>The R used in this illustration follows:</b><br><div style="overflow:auto;"><div class="geshifilter"><pre class="r geshifilter-R" style="font-family:monospace;"><span style="color: #666666; font-style: italic;"># *------------------------------------------------------------------</span><br><span style="color: #666666; font-style: italic;"># | PROGRAM NAME: R_BASIC_SNA</span><br><span style="color: #666666; font-style: italic;"># | DATE: 4/9/12</span><br><span style="color: #666666; font-style: italic;"># | CREATED BY: MATT BOGARD </span><br><span style="color: #666666; font-style: italic;"># | PROJECT FILE: P:\R  Code References\SNA            </span><br><span style="color: #666666; font-style: italic;"># *----------------------------------------------------------------</span><br><span style="color: #666666; font-style: italic;"># | PURPOSE: DEMONSTRATION OF BASIC CONCEPTS OF NETWORK ANALYSIS              </span><br><span style="color: #666666; font-style: italic;"># | REFERENCES: Conway, Drew. Social Network Analysis in R. </span><br><span style="color: #666666; font-style: italic;"># | New York City R User Group Meetup Presentation August 6, 2009</span><br><span style="color: #666666; font-style: italic;"># | http://www.drewconway.com/zia/wp-content/uploads/2009/08/sna_in_R.pdf</span><br><span style="color: #666666; font-style: italic;"># *------------------------------------------------------------------</span><br>&nbsp;<br><a href="http://inside-r.org/r-doc/base/setwd" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">setwd</span></a><span style="color: #009900;">(</span><span style="color: #0000ff;">"P:<span style="color: #000099; font-weight: bold;">\\</span>TOOLS AND REFERENCES (Copy)<span style="color: #000099; font-weight: bold;">\\</span>Social Network Analysis<span style="color: #000099; font-weight: bold;">\\</span>SNA DATA"</span><span style="color: #009900;">)</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;">#---------------------------------------</span><br><span style="color: #666666; font-style: italic;">#</span><br><span style="color: #666666; font-style: italic;"># analytics</span><br><span style="color: #666666; font-style: italic;">#</span><br><span style="color: #666666; font-style: italic;">#---------------------------------------</span><br>&nbsp;<br><a href="http://inside-r.org/r-doc/base/library" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">(</span><a href="http://inside-r.org/packages/cran/igraph" ref="nofollow" target="_blank"><span style="">igraph</span></a><span style="color: #009900;">)</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;">#--------------------------------------</span><br><span style="color: #666666; font-style: italic;"># get data </span><br><span style="color: #666666; font-style: italic;">#--------------------------------------</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;"># specify the adjacency matrix</span><br>M <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/base/matrix" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">matrix</span></a><span style="color: #009900;">(</span><a href="http://inside-r.org/r-doc/base/c" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">(</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span> <span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">0</span> <span style="color: #009900;">)</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">10</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">10</span><span style="color: #339933;">,</span> byrow= <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">)</span><br>G<span style="">&lt;-</span>graph.adjacency<span style="color: #009900;">(</span>M<span style="color: #339933;">,</span> <a href="http://inside-r.org/r-doc/base/mode" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">mode</span></a>=<a href="http://inside-r.org/r-doc/base/c" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">(</span><span style="color: #0000ff;">"undirected"</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span>               <span style="color: #666666; font-style: italic;"># convert key player network matrix to an igraph object    </span><br>cent<span style="">&lt;-</span><a href="http://inside-r.org/r-doc/base/data.frame" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">data.frame</span></a><span style="color: #009900;">(</span>bet=betweenness<span style="color: #009900;">(</span>G<span style="color: #009900;">)</span><span style="color: #339933;">,</span>eig=evcent<span style="color: #009900;">(</span>G<span style="color: #009900;">)</span><span style="">$</span>vector<span style="color: #009900;">)</span> <span style="color: #666666; font-style: italic;"># calculate betweeness &amp; eigenvector centrality </span><br>res<span style="">&lt;-</span><a href="http://inside-r.org/r-doc/base/as.vector" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">as.vector</span></a><span style="color: #009900;">(</span><a href="http://inside-r.org/r-doc/stats/lm" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">lm</span></a><span style="color: #009900;">(</span>eig<span style="">~</span>bet<span style="color: #339933;">,</span><a href="http://inside-r.org/r-doc/utils/data" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">data</span></a>=cent<span style="color: #009900;">)</span><span style="">$</span>residuals<span style="color: #009900;">)</span>           <span style="color: #666666; font-style: italic;"># calculate residuals</span><br>cent<span style="">&lt;-</span><a href="http://inside-r.org/r-doc/base/transform" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">transform</span></a><span style="color: #009900;">(</span>cent<span style="color: #339933;">,</span>res=res<span style="color: #009900;">)</span>                             <span style="color: #666666; font-style: italic;"># add to centrality data set</span><br><a href="http://inside-r.org/r-doc/utils/write.csv" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">write.csv</span></a><span style="color: #009900;">(</span>cent<span style="color: #339933;">,</span><span style="color: #0000ff;">"r_keyactorcentrality.csv"</span><span style="color: #009900;">)</span>                  <span style="color: #666666; font-style: italic;"># save in project folder</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;">#--------------------------------------</span><br><span style="color: #666666; font-style: italic;"># visualize the network</span><br><span style="color: #666666; font-style: italic;">#--------------------------------------</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;"># plot that reflects correct vertex names and scaled by centrality</span><br>&nbsp;<br><a href="http://inside-r.org/r-doc/graphics/plot" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">plot</span></a><span style="color: #009900;">(</span>G<span style="color: #339933;">,</span> <a href="http://inside-r.org/r-doc/graphics/layout" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">layout</span></a> = layout.fruchterman.reingold<span style="color: #339933;">,</span> vertex.size = <span style="color: #cc66cc;">20</span><span style="">*</span>evcent<span style="color: #009900;">(</span>G<span style="color: #009900;">)</span><span style="">$</span>vector<span style="color: #339933;">,</span> vertex.label = <a href="http://inside-r.org/r-doc/base/as.factor" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">as.factor</span></a><span style="color: #009900;">(</span><a href="http://inside-r.org/r-doc/base/rownames" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">rownames</span></a><span style="color: #009900;">(</span>cent<span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;">#-------------------------------------------</span><br><span style="color: #666666; font-style: italic;"># create analysis data set</span><br><span style="color: #666666; font-style: italic;">#------------------------------------------</span><br>&nbsp;<br>id <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/base/c" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">(</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">2</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">4</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">5</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">6</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">7</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">8</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">9</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">10</span><span style="color: #009900;">)</span>  <span style="color: #666666; font-style: italic;"># create individual id's for reference</span><br>income <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/base/c" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">(</span><span style="color: #cc66cc;">35000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">37000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">43000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">63000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">72000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">27000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">30000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">34000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">45000</span><span style="color: #339933;">,</span> <span style="color: #cc66cc;">55000</span><span style="color: #009900;">)</span> <span style="color: #666666; font-style: italic;"># income</span><br>default <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/base/c" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">(</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">)</span> <span style="color: #666666; font-style: italic;"># default indicator</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;">#-------------------------------------------</span><br><span style="color: #666666; font-style: italic;"># basic regression</span><br><span style="color: #666666; font-style: italic;">#------------------------------------------</span><br>&nbsp;<br>creditrisk <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/base/cbind" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">cbind</span></a><span style="color: #009900;">(</span>id<span style="color: #339933;">,</span>income<span style="color: #339933;">,</span> cent<span style="color: #339933;">,</span> default<span style="color: #009900;">)</span> <span style="color: #666666; font-style: italic;"># combine with eigenvector centrality derived above</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;"># model default risk as a function of income and network relationship </span><br>&nbsp;<br><span style="color: #666666; font-style: italic;"># OLS</span><br>model1 <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/stats/lm" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">lm</span></a><span style="color: #009900;">(</span>creditrisk<span style="">$</span>default<span style="">~</span>  creditrisk<span style="">$</span>eig <span style="">+</span> creditrisk<span style="">$</span>income<span style="color: #009900;">)</span> <br><a href="http://inside-r.org/r-doc/base/summary" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">summary</span></a><span style="color: #009900;">(</span>model1<span style="color: #009900;">)</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;">#logistic regression</span><br>model2 <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/stats/glm" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">glm</span></a><span style="color: #009900;">(</span>creditrisk<span style="">$</span>default<span style="">~</span>  creditrisk<span style="">$</span>eig <span style="">+</span> creditrisk<span style="">$</span>income<span style="color: #339933;">,</span> <a href="http://inside-r.org/r-doc/stats/family" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">family</span></a>=<a href="http://inside-r.org/r-doc/stats/binomial" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">binomial</span></a><span style="color: #009900;">(</span>link=<span style="color: #0000ff;">"logit"</span><span style="color: #009900;">)</span><span style="color: #339933;">,</span> <a href="http://inside-r.org/r-doc/stats/na.action" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">na.action</span></a>=<a href="http://inside-r.org/r-doc/stats/na.pass" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">na.pass</span></a><span style="color: #009900;">)</span><br><a href="http://inside-r.org/r-doc/base/summary" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">summary</span></a><span style="color: #009900;">(</span>model2<span style="color: #009900;">)</span><br>&nbsp;<br><span style="color: #666666; font-style: italic;"># decision tree</span><br>model3 <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/rpart/rpart" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">rpart</span></a><span style="color: #009900;">(</span>creditrisk<span style="">$</span>default<span style="">~</span>  creditrisk<span style="">$</span>eig <span style="">+</span> creditrisk<span style="">$</span>income<span style="color: #009900;">)</span><br><a href="http://inside-r.org/r-doc/base/summary" ref="nofollow" target="_blank"><span style="color: #003399; font-weight: bold;">summary</span></a><span style="color: #009900;">(</span>model3<span style="color: #009900;">)</span></pre></div></div><p><a href="http://www.inside-r.org/pretty-r" title="Created by Pretty R at inside-R.org" ref="nofollow" target="_blank">Created by Pretty R at inside-R.org</a></p><div style="overflow: auto;"><div class="geshifilter"><pre class="r geshifilter-R" style="font-family: monospace;"><span style="color: #009900;"></span></pre></div></div><div class="blogger-post-footer"><img width="1" height="1" src="./Using SNA in Predictive Modeling   R-bloggers_files/2474498300859593807-5843911423232265101" alt=""></div>
+<p class="syndicated-attribution"></p><div class="social4i" style="height:82px;"><div class="social4in" style="height:82px;float: left;"><div class="socialicons s4fblike" style="float:left;margin-right: 10px;"><div class="fb-like fb_iframe_widget" data-href="http://www.r-bloggers.com/using-sna-in-predictive-modeling/" data-send="true" data-layout="box_count" data-width="55" data-height="62" data-show-faces="false" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=&amp;height=62&amp;href=http%3A%2F%2Fwww.r-bloggers.com%2Fusing-sna-in-predictive-modeling%2F&amp;layout=box_count&amp;locale=en_US&amp;sdk=joey&amp;send=true&amp;show_faces=false&amp;width=55"><span style="vertical-align: bottom; width: 47px; height: 86px;"><iframe name="f1ae85d6e4" width="55px" height="62px" frameborder="0" allowtransparency="true" scrolling="no" title="fb:like Facebook Social Plugin" src="./Using SNA in Predictive Modeling   R-bloggers_files/like.html" style="border: none; visibility: visible; width: 47px; height: 86px;" class=""></iframe></span></div></div><div class="socialicons s4twitter" style="float:left;margin-right: 10px;"><iframe id="twitter-widget-1" scrolling="no" frameborder="0" allowtransparency="true" src="./Using SNA in Predictive Modeling   R-bloggers_files/tweet_button.b68aed79dd9ad79554bcd8c9141c94c8.en(1).html" class="twitter-share-button twitter-tweet-button twitter-share-button twitter-count-vertical" title="Twitter Tweet Button" data-twttr-rendered="true" style="width: 56px; height: 62px;"></iframe></div></div><div style="clear:both"></div></div>
+
+<div style="border: 1px solid; background: none repeat scroll 0 0 #EDEDED; margin: 1px; font-size: 13px;">
+<div style="text-align: center;">To <strong>leave a comment</strong> for the author, please follow the link and comment on his blog: <strong><a href="http://econometricsense.blogspot.com/2012/04/using-sna-in-predictive-modeling.html"> Econometric Sense</a></strong>.</div>
+<hr>
+<a href="http://www.r-bloggers.com/" rel="nofollow">R-bloggers.com</a> offers <strong><a href="http://feedburner.google.com/fb/a/mailverify?uri=RBloggers" rel="nofollow">daily e-mail updates</a></strong> about <a title="The R Project for Statistical Computing" href="http://www.r-project.org/" rel="nofollow">R</a> news and <a title="R tutorials" href="http://www.r-bloggers.com/?s=tutorial" rel="nofollow">tutorials</a> on topics such as: visualization (<a title="ggplot and ggplot2 tutorials" href="http://www.r-bloggers.com/?s=ggplot2" rel="nofollow">ggplot2</a>, <a title="Boxplots using lattice and ggplot2 tutorials" href="http://www.r-bloggers.com/?s=boxplot" rel="nofollow">Boxplots</a>, <a title="Maps and gis" href="http://www.r-bloggers.com/?s=map" rel="nofollow">maps</a>, <a title="Animation in R" href="http://www.r-bloggers.com/?s=animation" rel="nofollow">animation</a>), programming (<a title="RStudio IDE for R" href="http://www.r-bloggers.com/?s=RStudio" rel="nofollow">RStudio</a>, <a title="Sweave and literate programming" href="http://www.r-bloggers.com/?s=sweave" rel="nofollow">Sweave</a>, <a title="LaTeX in R" href="http://www.r-bloggers.com/?s=LaTeX" rel="nofollow">LaTeX</a>, <a title="SQL and databases" href="http://www.r-bloggers.com/?s=SQL" rel="nofollow">SQL</a>, <a title="Eclipse IDE for R" href="http://www.r-bloggers.com/?s=eclipse" rel="nofollow">Eclipse</a>, <a title="git and github, Version Control System" href="http://www.r-bloggers.com/?s=git" rel="nofollow">git</a>, <a title="Large data in R using Hadoop" href="http://www.r-bloggers.com/?s=hadoop" rel="nofollow">hadoop</a>, <a title="Web Scraping of google, facebook, yahoo, twitter and more using R" href="http://www.r-bloggers.com/?s=Web+Scraping" rel="nofollow">Web Scraping</a>) statistics (<a title="Regressions and ANOVA analysis tutorials" href="http://www.r-bloggers.com/?s=regression" rel="nofollow">regression</a>, <a title="principal component analysis tutorial" href="http://www.r-bloggers.com/?s=PCA" rel="nofollow">PCA</a>, <a title="Time series" href="http://www.r-bloggers.com/?s=time+series" rel="nofollow">time series</a>, <a title="finance trading" href="http://www.r-bloggers.com/?s=trading" rel="nofollow">trading</a>) and more...
+</div><p></p><hr><hr>
+<div style="border: 1px solid #EB9349; background: none repeat scroll 0 0 #FDEADA; text-align: center; margin: 10px; font-size: 16px;">
+If you got this far, why not <strong><u>subscribe for updates</u> </strong>from the site?  Choose your flavor: <a href="http://feedburner.google.com/fb/a/mailverify?uri=RBloggers" rel="nofollow">e-mail</a>, <a href="https://twitter.com/#!/rbloggers" rel="nofollow">twitter</a>, <a href="http://feeds.feedburner.com/RBloggers" rel="nofollow">RSS</a>, or <a href="http://www.facebook.com/pages/R-bloggers/191414254890" rel="nofollow">facebook</a>...
+</div><div class="social4i" style="height:29px;"><div class="social4in" style="height:29px;float: left;"><div class="socialicons s4fblike" style="float:left;margin-right: 10px;"><div class="fb-like fb_iframe_widget" data-href="http://www.r-bloggers.com/using-sna-in-predictive-modeling/" data-send="true" data-layout="button_count" data-width="100" data-height="21" data-show-faces="false" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=&amp;height=21&amp;href=http%3A%2F%2Fwww.r-bloggers.com%2Fusing-sna-in-predictive-modeling%2F&amp;layout=button_count&amp;locale=en_US&amp;sdk=joey&amp;send=true&amp;show_faces=false&amp;width=100"><span style="vertical-align: bottom; width: 120px; height: 20px;"><iframe name="f1dba932d8" width="100px" height="21px" frameborder="0" allowtransparency="true" scrolling="no" title="fb:like Facebook Social Plugin" src="./Using SNA in Predictive Modeling   R-bloggers_files/like(1).html" style="border: none; visibility: visible; width: 120px; height: 20px;" class=""></iframe></span></div></div><div class="socialicons s4twitter" style="float:left;margin-right: 10px;"><iframe id="twitter-widget-2" scrolling="no" frameborder="0" allowtransparency="true" src="./Using SNA in Predictive Modeling   R-bloggers_files/tweet_button.b68aed79dd9ad79554bcd8c9141c94c8.en(2).html" class="twitter-share-button twitter-tweet-button twitter-share-button twitter-count-horizontal" title="Twitter Tweet Button" data-twttr-rendered="true" style="width: 107px; height: 20px;"></iframe></div></div><div style="clear:both"></div></div><p class="tags"><small><strong>Tags:</strong> <a href="http://www.r-bloggers.com/tag/r/" rel="tag">R</a>, <a href="http://www.r-bloggers.com/tag/r-code/" rel="tag">R code</a>, <a href="http://www.r-bloggers.com/tag/social-network-analysis/" rel="tag">social network analysis</a></small></p></div>
+
+	</div><!-- #post-## -->
+
+
+
+   				<div id="comments">
+
+
+<div id="comment-user-details">
+
+
+
+
+
+		<p class="nocomments">Comments are closed.</p>
+
+
+
+		</div>
+
+</div><!-- #comments -->
+
+       
+	</div>
+    <!-- begin second sidebar -->
+    <div id="secondsidebar">
+
+		
+		<div class="side-widget"><h2>Top 3 Posts from the past 2 days</h2><ul>				<li>
+										<a href="http://www.r-bloggers.com/revolution-analytics-joins-microsoft/" class="bump-view" data-bump-view="tp">
+						Revolution Analytics joins Microsoft					</a>
+									</li>
+							<li>
+										<a href="http://www.r-bloggers.com/a-first-look-at-spark/" class="bump-view" data-bump-view="tp">
+						A first look at Spark					</a>
+									</li>
+							<li>
+										<a href="http://www.r-bloggers.com/shiny-0-11-themes-and-dashboard/" class="bump-view" data-bump-view="tp">
+						Shiny 0.11, themes, and dashboard					</a>
+									</li>
+			</ul></div><div class="side-widget"><form method="get" id="searchform" action="http://www.r-bloggers.com/">
+<div>
+<input type="text" class="search_input" value="Search &amp; Hit Enter" name="s" id="s" onfocus="if (this.value == &#39;Search &amp; Hit Enter&#39;) {this.value = &#39;&#39;;}" onblur="if (this.value == &#39;&#39;) {this.value = &#39;Search &amp; Hit Enter&#39;;}">
+<input type="hidden" id="searchsubmit">
+</div>
+</form></div><div class="side-widget"><h2>Top 9 articles of the week</h2>
+<ol class="wppp_list">
+	<li><a href="http://www.r-bloggers.com/learn-statistics-and-r-online-from-harvard/" title="Learn Statistics and R online from Harvard">Learn Statistics and R online from Harvard</a></li>
+	<li><a href="http://www.r-bloggers.com/installing-r-packages/" title="Installing R packages">Installing R packages</a></li>
+	<li><a href="http://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/" title="In-depth introduction to machine learning in 15 hours of expert videos">In-depth introduction to machine learning in 15 hours of expert videos</a></li>
+	<li><a href="http://www.r-bloggers.com/scatterplots/" title="Scatterplots">Scatterplots</a></li>
+	<li><a href="http://www.r-bloggers.com/using-apply-sapply-lapply-in-r/" title="Using apply, sapply, lapply in R">Using apply, sapply, lapply in R</a></li>
+	<li><a href="http://www.r-bloggers.com/basics-of-histograms/" title="Basics of Histograms">Basics of Histograms</a></li>
+	<li><a href="http://www.r-bloggers.com/visualization-series-insight-from-cleveland-and-tufte-on-plotting-numeric-data-by-groups/" title="Visualization series: Insight from Cleveland and Tufte on plotting numeric data by groups">Visualization series: Insight from Cleveland and Tufte on plotting numeric data by groups</a></li>
+	<li><a href="http://www.r-bloggers.com/r-in-business-intelligence/" title="R in Business Intelligence">R in Business Intelligence</a></li>
+	<li><a href="http://www.r-bloggers.com/k-means-clustering-is-not-a-free-lunch/" title="K-means clustering is not a free lunch">K-means clustering is not a free lunch</a></li>
+</ol>
+</div><div class="side-widget"><h2>Sponsors</h2>			<div class="textwidget"><a href="http://www.mango-solutions.com/" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/R-Bloggers-ad.jpg" alt="Mango solutions">
+</a>
+
+<br><hr>
+
+<a href="http://www.highstat.com/" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/highland_stat_banner_300_1251.jpg" alt="Zero Inflated Models and Generalized Linear Mixed Models with R">
+</a>
+
+
+<br><hr>
+
+<a href="http://www.quantide.com/" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/quantide4rbloggers.png" alt="Quantide: statistical consulting and training">
+</a>
+
+
+<br><hr>
+
+<a href="http://www.rstudio.org/" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/R-Bloggernoanima.png" alt="RStudio homepage">
+</a>
+
+<br><hr>
+
+<a href="http://www.revolutionanalytics.com/" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/Revolution-Analytics-Ad.png" alt="REvolution analytics">
+</a>
+
+
+
+
+<br><hr>
+
+<a href="http://www.eoda.de/en/" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/eoda_logo_3001.png" alt="http://www.eoda.de">
+</a>
+
+
+<br><hr>
+
+<a href="https://plot.ly/api/r/" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/plotly_ad_r_bloggers.jpg" alt="" title="Plotly">
+Plotly: collaborative, publication-quality graphing.
+</a>
+
+<br><hr>
+
+
+
+<a href="http://www.statisticsviews.com/view/index.html?utm_source=RBlogger&utm_medium=banner&utm_term=StatViews&utm_content=StatViewsAd&utm_campaign=webbanner" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/SVbanner300x125.jpg">
+</a>
+
+
+<br><hr>
+<a href="http://intuitics.com/?utm_source=rblg&utm_medium=banner&utm_campaign=v1" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/r-blg-ad-v1.png">
+</a>
+
+<br><hr>
+<a href="http://www.datacamp.com/?utm_source=R-bloggers&utm_medium=Add&utm_content=The%20r-blogger%20add&utm_campaign=R-bloggers-add" rel="nofollow">
+<img src="./Using SNA in Predictive Modeling   R-bloggers_files/DataCamp_banner_rbloggers.jpg">
+</a>
+
+<br><hr>
+<a href="http://rapporter.net/" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/rapporter-300x1252.png" alt="rapporter.net: An R based reporting and data analysis platform in the cloud" title="An R based reporting and data analysis platform in the cloud">
+</a>
+
+
+<br><hr>
+<a href="http://www.edureka.in/r-for-analytics?utm_source=R-Bloggers&utm_medium=Banner&utm_campaign=Display+Ad" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/Data-science-creative.jpg" alt="" title="">
+</a>
+
+
+
+<br><hr>
+<a href="http://www.nycdatascience.com/" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/NYC_Data_Academy_RBLOGGER_bootcamp.png" alt="" title="">
+</a>
+
+
+
+<br><hr>
+<a href="http://www.dotplot.com/data_analysis_signup/" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/dotplot_banner300x150_1a.png" alt="" title="dotplot">
+</a>
+
+
+<br><hr>
+<a href="http://www.statworx.de/r-statistik/" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/STATWORX-R-Bloggers.png" alt="" title="STATWORX">
+</a>
+
+
+<br><hr>
+<a href="http://yottamine.com/try-yottamine-now" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/R-Blog_Speed.png" alt="" title="yottamine">
+</a>
+
+
+
+<br><hr>
+<a href="http://www.simplilearn.com/big-data-and-analytics/business-analytics-foundation-r-tools-training-online/ppa810?utm_source=R-bloggers&utm_medium=affiliate-cpm&utm_campaign=NC-OS-ONLIN-0229-16-05012015-rbloggers" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/SRS-AND-LANGUAGE-300X120.png" alt="" title="simplilearn.com">
+</a>
+
+
+
+<br><hr>
+<a href="http://amzn.to/14vrKCD" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/1784_2015-Quantitative-Trading-with-R-ad_ST1.jpg" alt="" title="Quantitative Trading with R">
+</a>
+
+
+
+<br><hr>
+<a href="https://intellipaat.com/all-courses/data-science/?utm_source=rblog&utm_medium=banner&utm_campaign=rblogger&utm_term=datasci" rel="nofollow">
+    <img src="./Using SNA in Predictive Modeling   R-bloggers_files/datascience+r+mahout_300x125_1.jpg" alt="" title="intellipaat.com">
+</a>
+
+
+</div>
+		</div><div class="side-widget"><form method="get" id="searchform" action="http://www.r-bloggers.com/">
+<div>
+<input type="text" class="search_input" value="Search &amp; Hit Enter" name="s" id="s" onfocus="if (this.value == &#39;Search &amp; Hit Enter&#39;) {this.value = &#39;&#39;;}" onblur="if (this.value == &#39;&#39;) {this.value = &#39;Search &amp; Hit Enter&#39;;}">
+<input type="hidden" id="searchsubmit">
+</div>
+</form></div><div class="side-widget">			<div class="textwidget"><strong><a href="http://www.r-bloggers.com/blogs-list/" onclick="_gaq.push([&#39;_trackEvent&#39;, &#39;outbound-widget-int&#39;, &#39;http://www.r-bloggers.com/blogs-list/&#39;, &#39;Full list of contributing R-bloggers&#39;]);">Full list of contributing R-bloggers</a></strong></div>
+		</div>    </div>
+<!-- end second sidebar --></div>
+<!-- begin footer -->
+<div id="footer">
+	<strong><a href="http://www.r-bloggers.com/">R-bloggers</a></strong> was founded by <a href="http://www.r-statistics.com/about/">Tal Galili</a>, with gratitude to the <a href="http://www.r-project.org/">R</a> community.  <br>
+    Is powered by <a href="http://www.wordpress.org/">WordPress</a> using a <a href="http://themes.bavotasan.com/" rel="nofollow">bavotasan.com</a> design.<br>
+    Copyright © 2015 <strong>R-bloggers</strong>. All Rights Reserved. <a href="http://www.r-bloggers.com/terms/">Terms and Conditions</a> for this website<br>
+</div>
+<span id="bruteprotect_uptime_check_string" style="display:none;">7ads6x98y</span>
+<!--
+TPC! Memory Usage (http://webjawns.com)
+Memory Usage: 80170104
+Memory Peak Usage: 81050584
+WP Memory Limit: 520M
+PHP Memory Limit: 512M
+Checkpoints: 11
+-->
+
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shCore.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushAS3.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushBash.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushColdFusion.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushClojure.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushCpp.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushCSharp.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushCss.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushDelphi.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushDiff.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushErlang.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushFSharp.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushGroovy.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushJava.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushJavaFX.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushJScript.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushLatex.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushMatlabKey.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushObjC.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushPerl.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushPhp.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushPlain.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushPowerShell.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushPython.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushR.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushRuby.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushScala.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushSql.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushVb.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/shBrushXml.js"></script>
+<script type="text/javascript">
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://www.r-bloggers.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shCore.css?ver=3.0.9";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://www.r-bloggers.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shThemeDefault.css?ver=3.0.9";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.strings.expandSource = '+ expand source';
+	SyntaxHighlighter.config.strings.help = '?';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = 'Can\'t find brush for: ';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush wasn\'t configured for html-script option: ';
+	SyntaxHighlighter.defaults['pad-line-numbers'] = false;
+	SyntaxHighlighter.defaults['toolbar'] = false;
+	SyntaxHighlighter.all();
+</script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/comment-reply.min.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/effects.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/photon.js"></script>
+<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/devicepx-jetpack.js"></script>
+	<div id="fb-root" class=" fb_reset"><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div></div></div><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div><iframe name="fb_xdm_frame_http" frameborder="0" allowtransparency="true" scrolling="no" id="fb_xdm_frame_http" aria-hidden="true" title="Facebook Cross Domain Communication Frame" tabindex="-1" src="./Using SNA in Predictive Modeling   R-bloggers_files/DU1Ia251o0y.html" style="border: none;"></iframe><iframe name="fb_xdm_frame_https" frameborder="0" allowtransparency="true" scrolling="no" id="fb_xdm_frame_https" aria-hidden="true" title="Facebook Cross Domain Communication Frame" tabindex="-1" src="./Using SNA in Predictive Modeling   R-bloggers_files/DU1Ia251o0y(1).html" style="border: none;"></iframe></div></div></div>
+	<script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/widgets.js"></script><script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/all.js"></script><script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/plusone.js" gapi_processed="true"></script><script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/in.js"></script>
+	<script src="./Using SNA in Predictive Modeling   R-bloggers_files/e-201504.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	st_go({v:'ext',j:'1:3.3',blog:'11524731',post:'61389',tz:'-6'});
+	var load_cmc = function(){linktracker_init(11524731,61389,2);};
+	if ( typeof addLoadEvent != 'undefined' ) addLoadEvent(load_cmc);
+	else load_cmc();
+	</script><img src="./Using SNA in Predictive Modeling   R-bloggers_files/g.gif" id="wpstats"><script type="text/javascript" src="./Using SNA in Predictive Modeling   R-bloggers_files/effects(1).js"></script> 
+<script type="text/javascript">
+/* <![CDATA[ */
+jQuery(function(){
+	jQuery("ul.sf-menu").supersubs({ 
+		minWidth:    12,
+		maxWidth:    27,
+		extraWidth:  1
+	}).superfish({ 
+		delay:       100,
+		speed:       250 
+	});	});
+/* ]]> */
+</script>
+
+
+
+
+
+<!-- Dynamic page generated in 0.724 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2015-01-24 11:10:17 -->
+
+<!-- Compression = gzip --></body></html>
