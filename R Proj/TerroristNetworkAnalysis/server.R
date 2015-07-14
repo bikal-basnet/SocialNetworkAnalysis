@@ -42,12 +42,13 @@ shinyServer(function(input, output) {
     inFile <- input$file1    
     if (is.null(inFile)){return(NULL)} 
     else {    
-      data<-read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote);    
+      # data<-read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote);    
+      data<- read.url("http://www.quandl.com/api/v1/datasets/EUROSTAT/CRIM_PLCE_42.csv",header=TRUE, sep=',');
       DAll <- as.matrix(data,nrow(data),nrow(data),byrow=TRUE)          
       G1<-graph.adjacency(DtWithName, mode=c("undirected")) ;      
       header <- colnames(data);
       headerPresent <-input$header;
-      TrnsDataset200<-read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)
+      TrnsDataset200<-read.url("http://www.quandl.com/api/v1/datasets/EUROSTAT/CRIM_PLCE_42.csv",header=TRUE, sep=',');
     }
     
   })
