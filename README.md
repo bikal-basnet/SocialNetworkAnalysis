@@ -2,16 +2,22 @@
 
 For a live demo of it in action, you can try the following link : https://analysenetwork.shinyapps.io/TerroristNetworkAnalysis
 The data set for the current version, is automatically loaded from the git. You will have to wait couple of seconds for that. Once the data is loaded, you can navigate to different tabs and see the result for yourself. 
+
 PS: Each tabs may take some time to process, due to the  use of the free shiny server.
 
 
 Social Network Analysis, is the process of investigating social  structure, with the use of the networks and graphs.
 
 Explore the communication network to understand  you or  your  organisation's structure.
+
 1. Identify the core strategic organisation unit
+
 2. Identify the information flow path in the network.
+
 3. Identify the key strategic stakeholders in the network.
+
 4. Identifyt the operational  units in the network , if they exist.
+
 5. Identify the core influencers of the network.
 
 
